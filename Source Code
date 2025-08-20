@@ -1,0 +1,382 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { MapPin, CalendarDays, Gift, Camera, Info, Heart, Clock, Rss } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+
+/**
+ * ==============================
+ *  Wedding Website – Single File
+ * ==============================
+ * - Tech: React + Tailwind + shadcn/ui + Framer Motion + Lucide icons
+ * - Everything is in this one component for easy copy/paste.
+ * - Customize the details in the CONFIG section below.
+ * - The RSVP form is client-side only (no backend); hook it up to your service of choice.
+ */
+
+// ===============
+// CONFIG: Edit me
+// ===============
+const CONFIG = {
+  coupleA: "Aarav",
+  coupleB: "Ishita",
+  dateISO: "2026-02-14T16:00:00", // Local time for ceremony start
+  venueName: "The Conservatory",
+  venueAddress: "123 Garden Lane, Chicago, IL",
+  googleMapsEmbed:
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2968.619508610941!2d-87.6297999!3d41.8781133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x880e2ca38eec6f15%3A0x7ea2d3f7b9ce8e5!2sChicago%20Cultural%20Center!5e0!3m2!1sen!2sus!4v1712784000000!5m2!1sen!2sus",
+  hashtag: "#AaravHeartsIshita",
+  registryLinks: [
+    { name: "Zola", url: "https://www.zola.com/" },
+    { name: "Target", url: "https://www.target.com/" },
+    { name: "Amazon", url: "https://www.amazon.com/wedding" },
+  ],
+  schedule: [
+    { time: "4:00 PM", title: "Ceremony", desc: "Garden pavilion" },
+    { time: "5:00 PM", title: "Cocktail Hour", desc: "Terrace" },
+    { time: "6:30 PM", title: "Dinner & Toasts", desc: "Grand hall" },
+    { time: "8:00 PM", title: "First Dance", desc: "Main floor" },
+    { time: "10:30 PM", title: "Farewell", desc: "Sparkler send-off" },
+  ],
+  gallery: [
+    "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1480&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1480&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1496439786094-e6976df92654?q=80&w=1480&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1480&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1521334726092-b509a19597c6?q=80&w=1480&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1480&auto=format&fit=crop",
+  ],
+};
+
+// Utility: format remaining time
+function useCountdown(targetISO) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const target = useMemo(() => new Date(targetISO), [targetISO]);
+  const diff = Math.max(0, target.getTime() - now.getTime());
+  const s = Math.floor(diff / 1000);
+  const days = Math.floor(s / 86400);
+  const hours = Math.floor((s % 86400) / 3600);
+  const minutes = Math.floor((s % 3600) / 60);
+  const seconds = s % 60;
+  return { days, hours, minutes, seconds, isPast: diff === 0 };
+}
+
+function Section({ id, children, className = "" }) {
+  return (
+    <section id={id} className={`scroll-mt-24 ${className}`}> 
+      {children}
+    </section>
+  );
+}
+
+function NavLink({ href, children }) {
+  return (
+    <a
+      href={href}
+      className="px-3 py-2 rounded-xl text-sm hover:bg-white/10 transition focus:outline-none focus:ring-2 focus:ring-white/40"
+    >
+      {children}
+    </a>
+  );
+}
+
+export default function WeddingWebsite() {
+  const { coupleA, coupleB, dateISO, venueName, venueAddress, hashtag } = CONFIG;
+  const countdown = useCountdown(dateISO);
+
+  const onSubmitRSVP = (e) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const payload = Object.fromEntries(data.entries());
+    console.log("RSVP submission", payload);
+    alert("Thank you! Your RSVP has been captured locally. Connect this form to Google Sheets, Airtable, or your backend to store it.");
+  };
+
+  const topRef = useRef(null);
+
+  return (
+    <div ref={topRef} className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-rose-50 text-slate-800">
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 backdrop-blur bg-white/60 border-b border-rose-100">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+          <a href="#top" className="font-semibold tracking-wide text-rose-600">{coupleA} & {coupleB}</a>
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink href="#story">Our Story</NavLink>
+            <NavLink href="#schedule">Schedule</NavLink>
+            <NavLink href="#venue">Venue</NavLink>
+            <NavLink href="#rsvp">RSVP</NavLink>
+            <NavLink href="#gallery">Gallery</NavLink>
+            <NavLink href="#registry">Registry</NavLink>
+            <NavLink href="#faq">FAQ</NavLink>
+          </nav>
+          <Button asChild className="md:inline-flex hidden rounded-full" size="sm">
+            <a href="#rsvp">RSVP</a>
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <Section id="top" className="relative">
+        <div className="max-w-6xl mx-auto px-4 pt-16 pb-10">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <p className="uppercase tracking-[0.3em] text-xs text-rose-500 mb-2">We are getting married</p>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif leading-tight">
+                {coupleA} <span className="text-rose-500">&</span> {coupleB}
+              </h1>
+              <p className="mt-4 text-slate-600">Join us to celebrate our wedding day filled with love, laughter, and happily ever after.</p>
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-700">
+                <span className="inline-flex items-center gap-2"><CalendarDays className="h-5 w-5"/> {new Date(dateISO).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}</span>
+                <span className="inline-flex items-center gap-2"><MapPin className="h-5 w-5"/> {venueName}</span>
+                <span className="inline-flex items-center gap-2"><Rss className="h-5 w-5"/> {hashtag}</span>
+              </div>
+              {/* Countdown */}
+              <div className="mt-8 grid grid-cols-4 gap-2 max-w-md">
+                {[{label:'Days',value:countdown.days},{label:'Hours',value:countdown.hours},{label:'Minutes',value:countdown.minutes},{label:'Seconds',value:countdown.seconds}].map((b, i) => (
+                  <Card key={i} className="bg-white/70">
+                    <CardContent className="p-4 text-center">
+                      <div className="text-3xl font-semibold">{String(b.value).padStart(2, '0')}</div>
+                      <div className="text-xs uppercase tracking-wider text-slate-600">{b.label}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <div className="mt-6 flex gap-3">
+                <Button asChild size="lg" className="rounded-full">
+                  <a href="#rsvp">RSVP Now</a>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="rounded-full">
+                  <a href="#venue">Get Directions</a>
+                </Button>
+              </div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
+              <div className="aspect-[4/5] overflow-hidden rounded-3xl shadow-2xl ring-1 ring-rose-100">
+                <img
+                  src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1480&auto=format&fit=crop"
+                  alt="Couple photography"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Our Story */}
+      <Section id="story" className="py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-serif">Our Story</h2>
+            <p className="text-slate-600 mt-2">From a chance meeting to a lifetime together.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="bg-white/70">
+              <CardContent className="p-6 space-y-3">
+                <h3 className="font-semibold flex items-center gap-2"><Heart className="h-5 w-5 text-rose-500"/> How we met</h3>
+                <p className="text-sm text-slate-700">We first crossed paths at a friend’s rooftop barbecue. A shared joke led to hours of conversation about travel, food, and music—and we’ve been inseparable since.</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/70">
+              <CardContent className="p-6 space-y-3">
+                <h3 className="font-semibold flex items-center gap-2"><Clock className="h-5 w-5 text-rose-500"/> The proposal</h3>
+                <p className="text-sm text-slate-700">On a sunset walk by the lake, the question was asked, the answer was yes, and the rest is our favorite story.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Section>
+
+      {/* Schedule */}
+      <Section id="schedule" className="py-16 bg-white/50">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-serif flex items-center justify-center gap-3"><CalendarDays className="h-7 w-7 text-rose-500"/> Schedule</h2>
+            <p className="text-slate-600">Here’s how the day will flow.</p>
+          </div>
+          <div className="relative">
+            <div className="absolute left-4 md:left-1/2 top-0 h-full w-px bg-rose-200" aria-hidden />
+            <ul className="space-y-6">
+              {CONFIG.schedule.map((item, idx) => (
+                <li key={idx} className="grid md:grid-cols-2 items-center">
+                  <div className={`md:text-right pr-6 ${idx % 2 === 0 ? 'md:order-1' : ''}`}>
+                    <div className="inline-block rounded-full bg-rose-100 px-3 py-1 text-rose-700 text-sm font-medium">{item.time}</div>
+                  </div>
+                  <Card className="bg-white/80 md:ml-6">
+                    <CardContent className="p-5">
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <p className="text-sm text-slate-700">{item.desc}</p>
+                    </CardContent>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Section>
+
+      {/* Venue */}
+      <Section id="venue" className="py-16">
+        <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="text-3xl font-serif flex items-center gap-3 mb-2"><MapPin className="h-7 w-7 text-rose-500"/> {venueName}</h2>
+            <p className="text-slate-700">{venueAddress}</p>
+            <p className="mt-3 text-sm text-slate-600">Parking available on-site. Rideshares and public transit are encouraged.</p>
+            <div className="mt-5 flex gap-3">
+              <Button asChild className="rounded-full">
+                <a target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueName + ' ' + venueAddress)}`}>Open in Google Maps</a>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full">
+                <a href="#faq">Guest Info</a>
+              </Button>
+            </div>
+          </div>
+          <div className="rounded-3xl overflow-hidden shadow-xl ring-1 ring-rose-100">
+            <iframe
+              title="Map"
+              src={CONFIG.googleMapsEmbed}
+              className="w-full h-[360px]"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+      </Section>
+
+      {/* RSVP */}
+      <Section id="rsvp" className="py-16 bg-white/50">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif">RSVP</h2>
+            <p className="text-slate-600">We can’t wait to celebrate with you! Please respond by Jan 10, 2026.</p>
+          </div>
+          <Card className="bg-white/80">
+            <CardContent className="p-6">
+              <form className="grid gap-4" onSubmit={onSubmitRSVP}>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm">Full name</label>
+                    <Input name="name" placeholder="Your name" required className="mt-1"/>
+                  </div>
+                  <div>
+                    <label className="text-sm">Email</label>
+                    <Input name="email" type="email" placeholder="you@example.com" required className="mt-1"/>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm">Phone</label>
+                    <Input name="phone" type="tel" placeholder="(555) 555-5555" className="mt-1"/>
+                  </div>
+                  <div>
+                    <label className="text-sm">Number of guests</label>
+                    <Input name="guests" type="number" min={1} max={10} defaultValue={1} className="mt-1"/>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm">Attendance</label>
+                    <select name="attendance" required className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2">
+                      <option value="yes">Joyfully accept</option>
+                      <option value="no">Regretfully decline</option>
+                    </select>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <Checkbox id="plusone" name="plusone"/>
+                    <label htmlFor="plusone" className="text-sm">Request a plus-one (if available)</label>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm">Dietary restrictions / Notes</label>
+                  <Textarea name="notes" placeholder="Let us know about allergies or song requests!" className="mt-1" rows={4}/>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-500">Your info stays private and is used only for wedding planning.</p>
+                  <Button type="submit" className="rounded-full">Send RSVP</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </Section>
+
+      {/* Gallery */}
+      <Section id="gallery" className="py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif flex items-center justify-center gap-3"><Camera className="h-7 w-7 text-rose-500"/> Gallery</h2>
+            <p className="text-slate-600">A few favorite moments and the vibe for the big day.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {CONFIG.gallery.map((src, i) => (
+              <motion.div key={i} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+                <img src={src} alt={`Gallery ${i+1}`} className="h-48 w-full object-cover rounded-2xl shadow ring-1 ring-rose-100"/>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Registry */}
+      <Section id="registry" className="py-16 bg-white/50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif flex items-center justify-center gap-3"><Gift className="h-7 w-7 text-rose-500"/> Registry</h2>
+            <p className="text-slate-600">Your presence is the greatest gift. If you wish to honor us with a gift, here are some ideas:</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            {CONFIG.registryLinks.map((r, i) => (
+              <Button asChild key={i} variant="outline" className="rounded-full">
+                <a target="_blank" rel="noreferrer" href={r.url}>{r.name}</a>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* FAQ */}
+      <Section id="faq" className="py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif flex items-center justify-center gap-3"><Info className="h-7 w-7 text-rose-500"/> FAQ</h2>
+            <p className="text-slate-600">Helpful details for the celebration.</p>
+          </div>
+          <div className="grid gap-4">
+            {[
+              { q: "What’s the dress code?", a: "Garden party formal – suits, cocktail dresses, jumpsuits; comfy shoes suggested for lawn." },
+              { q: "Are kids welcome?", a: "We love your little ones! However, due to space, the ceremony & reception are adults-only." },
+              { q: "Is parking available?", a: "Yes, limited valet and nearby garages. Rideshare recommended." },
+              { q: "Can I take photos?", a: `Yes! Please tag ${hashtag}. During the ceremony, we’d love an unplugged moment.` },
+            ].map((item, i) => (
+              <Card key={i} className="bg-white/80">
+                <CardContent className="p-5">
+                  <div className="font-medium">{item.q}</div>
+                  <p className="text-sm text-slate-700 mt-1">{item.a}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Footer */}
+      <footer className="pt-12 pb-16">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-rose-600">
+            <Heart className="h-5 w-5"/>
+            <span className="font-serif">{coupleA} & {coupleB}</span>
+            <Heart className="h-5 w-5"/>
+          </div>
+          <p className="mt-2 text-sm text-slate-500">See you on {new Date(dateISO).toLocaleDateString(undefined, { dateStyle: "full" })} • {venueName}</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
