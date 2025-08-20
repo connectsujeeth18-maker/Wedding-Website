@@ -21,14 +21,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 // CONFIG: Edit me
 // ===============
 const CONFIG = {
-  coupleA: "Aarav",
-  coupleB: "Ishita",
-  dateISO: "2026-02-14T16:00:00", // Local time for ceremony start
-  venueName: "The Conservatory",
-  venueAddress: "123 Garden Lane, Chicago, IL",
+  coupleA: "Sujeeth",
+  coupleB: "Ashley",
+  dateISO: "2026-04-18T10:00:00", // Local time for ceremony start
+  venueName: "The Grand Palladium Jamaica",
+  venueAddress: "Montego Bay, Jamaica",
   googleMapsEmbed:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2968.619508610941!2d-87.6297999!3d41.8781133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x880e2ca38eec6f15%3A0x7ea2d3f7b9ce8e5!2sChicago%20Cultural%20Center!5e0!3m2!1sen!2sus!4v1712784000000!5m2!1sen!2sus",
-  hashtag: "#AaravHeartsIshita",
+    "https://www.google.com/maps/search/grand+palladium+montego+bay/@18.4578329,-78.1533557,17z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI1MDgxOC4wIKXMDSoASAFQAw%3D%3D",
+  hashtag: "#AshleyHeartsSujeeth",
   registryLinks: [
     { name: "Zola", url: "https://www.zola.com/" },
     { name: "Target", url: "https://www.target.com/" },
